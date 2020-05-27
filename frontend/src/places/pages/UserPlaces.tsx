@@ -19,6 +19,32 @@ const DUMMY_PLACES = [
   },
   {
     id: "p2",
+    title: "Akshardham Temple",
+    description: "Swaminarayan Akshardham (New Delhi) is a Hindu temple, and a spiritual-cultural campus in New Delhi, India.",
+    imageUrl:
+      "https://www.makemytrip.com/travel-guide/media/dg_image/delhi/Swaminarayan-Akshardham-Temple-Delhi.jpg",
+    address: "Noida Mor, Pandav Nagar, New Delhi, Delhi 110092",
+    location: {
+      lat: 28.6126735,
+      lng: 77.2750732,
+    },
+    creator: "u1",
+  },
+  {
+    id: "p3",
+    title: "Nalanda University",
+    description: "Nalanda University is an international and research-intensive class located in the historical city of Rajgir, in Bihar, India.",
+    imageUrl:
+      "https://images.newindianexpress.com/uploads/user/imagelibrary/2016/11/19/w600X300/BuildingAA.PNG",
+    address: "Rajgir, Bihar, India",
+    location: {
+      lat: 25.1388526,
+      lng: 85.4489793,
+    },
+    creator: "u1",
+  },
+  {
+    id: "p2",
     title: "Empire State Building",
     description: "One of the most famous sky scrapers in the world!",
     imageUrl:
@@ -29,7 +55,7 @@ const DUMMY_PLACES = [
       lng: -73.9878531,
     },
     creator: "u2",
-  },
+  }
 ];
 
 interface RouteParams {
