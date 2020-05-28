@@ -19,12 +19,12 @@ interface ModalOverlayProps {
 }
 
 interface ModalProps {
-  show: boolean;
-  onCancel: () => void;
-  header: any;
-  contentClass: string;
-  footerClass: string;
-  footer: any;
+  show?: boolean;
+  onCancel?: () => void;
+  header?: string;
+  contentClass?: string;
+  footerClass?: string;
+  footer?: any;
 }
 
 const ModalOverlay: React.FC<ModalOverlayProps> = ({ ...props }) => {
