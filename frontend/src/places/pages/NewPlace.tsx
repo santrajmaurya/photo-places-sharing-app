@@ -1,4 +1,4 @@
-import React, { useCallback, useReducer } from "react";
+import React from "react";
 
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
@@ -7,61 +7,32 @@ import {
   VALIDATOR_MINLENGTH,
 } from "../../shared/util/Validators";
 
+import { useForm } from '../../shared/hooks/form-hook';
+
 import "./PlaceForm.scss";
 
 type Event = React.ChangeEvent<HTMLFormElement>;
 
-const formReducer = (state: any, action: any) => {
-  switch (action.type) {
-    case "INPUT_CHANGE":
-      let formIsValid = true;
-      for (const inputId in state.inputs) {
-        if (inputId === action.inputId) {
-          formIsValid = formIsValid && action.isValid;
-        } else {
-          formIsValid = formIsValid && state.inputs[inputId].isValid;
-        }
-      }
-      return {
-        ...state,
-        inputs: {
-          ...state.inputs,
-          [action.inputId]: { value: action.value, isValid: action.isValid },
-        },
-        isValid: formIsValid,
-      };
 
-    default:
-      return state;
-  }
-};
 
 const NewPlace: React.FC = () => {
-  const [formState, dispatch] = useReducer(formReducer, {
-    inputs: {
-      title: {
-        value: "",
-        isValid: false,
-      },
-      description: {
-        value: "",
-        isValid: false,
-      },
-      address: {
-        value: "",
-        isValid: false,
-      },
-    },
-    isValid: false,
-  });
-  const inputHandler = useCallback((id, value, isValid) => {
-    dispatch({
-      type: "INPUT_CHANGE",
-      value: value,
-      isValid: isValid,
-      inputId: id,
-    });
-  }, []);
+    const [formState, inputHandler] =  useForm(
+        {
+        title: {
+            value: '',
+            isValid: false
+        },
+        description: {
+            value: '',
+            isValid: false
+        },
+        address: {
+            value: '',
+            isValid: false
+        }
+    }, false)
+  
+  
 
   const placeSubmitHandler = (e: Event) => {
     e.preventDefault();

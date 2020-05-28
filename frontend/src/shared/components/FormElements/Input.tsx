@@ -1,97 +1,115 @@
 import React, { useReducer, useEffect } from "react";
 
-import { validate } from '../../util/Validators';
-
+import { validate } from "../../util/Validators";
 import "./Input.scss";
 
 interface InputProps {
-    element?: string,
-    id?: string,
-    type?: string,
-    placeholder?: string,
-    label?: string,
-    rows?: number,
-    validators?: any,
-    errorText?: string,
-    onInput?: any,
-    value?: string,
-    valid?: boolean,
-}
-type Action = any;
-type State = {
-    inputValue: string,
-    isValid: boolean,
-    isTouched: boolean,
+  element?: string;
+  id?: string;
+  type?: string;
+  placeholder?: string;
+  label?: string;
+  rows?: number;
+  validators?: any;
+  errorText?: string;
+  onInput?: any;
+  initialValue?: string;
+  initialValid?: boolean;
 }
 
-type Event = React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
+type Event =
+  | React.ChangeEvent<HTMLInputElement>
+  | React.ChangeEvent<HTMLTextAreaElement>;
 
-const inputReducer = (state: State, action: Action) => {
-    switch (action.type) {
-        case "CHANGE":
-            return {
-                ...state,
-                inputValue: action.val,
-                isValid: validate(action.val, action.validators),
-            };
-        case "TOUCH":
-            return {
-                ...state,
-                isTouched: true
-            };
-        default:
-            return state;
+const inputReducer = (state: any, action: any) => {
+  switch (action.type) {
+    case "CHANGE":
+      return {
+        ...state,
+        value: action.val,
+        isValid: validate(action.val, action.validators),
+      };
+    case "TOUCH": {
+      return {
+        ...state,
+        isTouched: true,
+      };
     }
+    default:
+      return state;
+  }
 };
 
-const Input: React.FC<InputProps> = ({ element, id, type, placeholder, label, rows, errorText, validators, onInput, value, valid }) => {
-    const [inputState, dispatch] = useReducer(inputReducer, {
-        inputValue: value || '',
-        isTouched: false,
-        isValid: valid || false,
+const Input: React.FC<InputProps> = ({
+  initialValue,
+  initialValid,
+  id,
+  onInput,
+  validators,
+  element,
+  type,
+  placeholder,
+  rows,
+  label,
+  errorText,
+}) => {
+  const [inputState, dispatch] = useReducer(inputReducer, {
+    value: initialValue || "",
+    isTouched: false,
+    isValid: initialValid || false,
+  });
+
+  const { value, isValid } = inputState;
+
+  useEffect(() => {
+    onInput(id, value, isValid);
+  }, [id, value, isValid, onInput]);
+
+  const changeHandler = (e: Event) => {
+    dispatch({
+      type: "CHANGE",
+      val: e.target.value,
+      validators: validators,
     });
+  };
 
-    const { inputValue, isValid } = inputState;
+  const touchHandler = () => {
+    dispatch({
+      type: "TOUCH",
+    });
+  };
 
-    useEffect(() => {
-        onInput(id, inputValue, isValid);
-    }, [id, inputValue, isValid, onInput])
-
-    const changeHandler = (e: Event) => {
-        dispatch({ type: "CHANGE", val: e.target.value, validators: validators });
-    };
-
-    const touchHandler = () => {
-        dispatch({ type: "TOUCH" });
-    };
-
-    const elementName =
-        element === "input" ? (
-            <input
-                id={id}
-                type={type}
-                placeholder={placeholder}
-                onChange={changeHandler}
-                onBlur={touchHandler}
-                value={inputState.inputValue}
-            />
-        ) : (
-                <textarea
-                    id={id}
-                    rows={rows || 3}
-                    onChange={changeHandler}
-                    onBlur={touchHandler}
-                    value={inputState.inputValue}
-                />
-            );
-
-    return (
-        <div className={`form-control ${!inputState.isValid && inputState.isTouched && 'form-control--invalid'}`}>
-            <label htmlFor={id}>{label}</label>
-            {elementName}
-            {!inputState.isValid && inputState.isTouched && <p>{errorText}</p>}
-        </div>
+  const elementName =
+    element === "input" ? (
+      <input
+        id={id}
+        type={type}
+        placeholder={placeholder}
+        onChange={changeHandler}
+        onBlur={touchHandler}
+        value={inputState.value}
+      />
+    ) : (
+      <textarea
+        id={id}
+        rows={rows || 3}
+        onChange={changeHandler}
+        onBlur={touchHandler}
+        value={inputState.value}
+      />
     );
+
+  return (
+    <div
+      className={`form-control ${
+        !inputState.isValid && inputState.isTouched && "form-control--invalid"
+      }`}
+    >
+      <label htmlFor={id}>{label}</label>
+      {elementName}
+      {!inputState.isValid && inputState.isTouched && <p>{errorText}</p>}
+    </div>
+  );
 };
 
 export default Input;
