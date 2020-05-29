@@ -8,7 +8,7 @@ interface ButtonProps {
     size?: number,
     inverse?: boolean,
     danger?: boolean,
-    children?: string,
+    children?: string[] | string,
     to?: string,
     exact?: boolean,
     type?: any,

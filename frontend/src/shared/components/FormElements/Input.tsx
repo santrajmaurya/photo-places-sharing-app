@@ -51,7 +51,7 @@ const Input: React.FC<InputProps> = ({
   placeholder,
   rows,
   label,
-  errorText,
+  errorText
 }) => {
   const [inputState, dispatch] = useReducer(inputReducer, {
     value: initialValue || "",
