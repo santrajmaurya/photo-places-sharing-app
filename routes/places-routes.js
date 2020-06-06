@@ -1,12 +1,17 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+
+const placesController = require('../controllers/places-controller');
 
 const router = express.Router();
 
-router.get("/", (req, res, next) => {
-  console.log("GET Request");
-  res.json({ message: "It works" });
-  next();
-});
+router.get("/:pid", placesController.getPlaceById);
+
+router.get("/user/:uid", placesController.getPlaceByUserId);
+
+router.post("/", placesController.createPlace);
+
+router.patch("/:pid", placesController.updatePlace);
+
+router.delete("/:pid", placesController.deletePlace);
 
 module.exports = router;
