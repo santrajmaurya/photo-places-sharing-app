@@ -1,6 +1,7 @@
 const express= require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 
 const placesRoutes = require('./routes/places-routes');
 const usersRoutes = require('./routes/users-routes');
@@ -27,7 +28,16 @@ app.use((error, req, res, next) => {
     res.json({message: error.message || 'An error occurred'});
 })
 
-app.listen(port, (error) => {
-  if (error) throw error;
-  console.log("Server is running on port " + port);
-});
+mongoose
+  .connect(
+    "mongodb+srv://santraj:vsxX6nIiRtUTibOB@cluster0-p3ikr.mongodb.net/places?retryWrites=true&w=majority"
+  )
+  .then(() => {
+    app.listen(port, (error) => {
+      console.log("Server is running on port " + port);
+    });
+  })
+  .catch(err => {
+      console.log(err);
+  });
+ 
