@@ -15,7 +15,7 @@ interface IPlace {
     id: string,
     title: string,
     description: string,
-    imageUrl: string,
+    image: string,
     address: string,
     location: ILocation,
     creator: string
@@ -41,7 +41,7 @@ const PlaceList: React.FC<PlaceListProps> = ({ items }) => {
         <PlaceItem
           key={place.id}
           id={place.id}
-          image={place.imageUrl}
+          image={place.image}
           title={place.title}
           description={place.description}
           address={place.address}

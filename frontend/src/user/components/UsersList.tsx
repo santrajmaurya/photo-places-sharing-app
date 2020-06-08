@@ -1,5 +1,4 @@
 import React from "react";
-
 import UserItem from "./UserItem";
 import Card from '../../shared/components/UIElements/Card';
 
