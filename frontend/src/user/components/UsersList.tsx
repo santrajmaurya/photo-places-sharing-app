@@ -6,10 +6,10 @@ import Card from '../../shared/components/UIElements/Card';
 import "./UsersList.scss";
 
 interface IUser {
-  id: string;
-  name: string;
-  image: string;
-  places: number;
+  id?: any;
+  name?: any;
+  image?: any;
+  places?: any;
 }
 interface UsersListProps {
   items: IUser[];
@@ -35,7 +35,7 @@ const UsersList: React.FC<UsersListProps> = ({ items }) => {
             id={user.id}
             image={user.image}
             name={user.name}
-            placeCount={user.places}
+            placeCount={user.places.length}
           />
         );
       })}
