@@ -22,9 +22,10 @@ interface IPlace {
 }
 interface PlaceListProps {
     items: IPlace[];
+    onDeletePlace: (id: string) => void;
 }
 
-const PlaceList: React.FC<PlaceListProps> = ({ items }) => {
+const PlaceList: React.FC<PlaceListProps> = ({ items, onDeletePlace }) => {
   if (items.length === 0) {
     return (
       <div className="place-list center">
@@ -47,6 +48,7 @@ const PlaceList: React.FC<PlaceListProps> = ({ items }) => {
           address={place.address}
           creatorId={place.creator}
           coordinates={place.location}
+          onDelete={onDeletePlace}
         />
       ))}
     </ul>

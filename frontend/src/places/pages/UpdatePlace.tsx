@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { useParams, useHistory } from "react-router-dom";
 
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
@@ -8,77 +8,32 @@ import {
   VALIDATOR_MINLENGTH,
 } from "../../shared/util/Validators";
 import Card from "../../shared/components/UIElements/Card";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal"; 
 
 import { useForm } from "../../shared/hooks/form-hook";
+import { useHttpClient } from "../../shared/hooks/http-hook";
+import { AuthContext } from '../../shared/context/auth-context';
 
 import "./PlaceForm.scss";
 
-const DUMMY_PLACES: any = [
-  {
-      id: "p1",
-      title: "Empire State Building",
-      description: "One of the most famous sky scrapers in the world!",
-      imageUrl:
-          "https://banner2.cleanpng.com/20180323/zyw/kisspng-empire-state-building-manhattan-4k-resolution-aspe-skyscraper-5ab5c25a2a99c5.5236467015218612101745.jpg",
-      address: "20 W 34th St, New York, NY 10001, United States",
-      location: {
-          lat: 40.7484405,
-          lng: -73.9878531,
-      },
-      creator: "u1",
-  },
-  {
-      id: "p2",
-      title: "Akshardham Temple",
-      description:
-          "Swaminarayan Akshardham (New Delhi) is a Hindu temple, and a spiritual-cultural campus in New Delhi, India.",
-      imageUrl:
-          "https://www.makemytrip.com/travel-guide/media/dg_image/delhi/Swaminarayan-Akshardham-Temple-Delhi.jpg",
-      address: "Noida Mor, Pandav Nagar, New Delhi, Delhi 110092",
-      location: {
-          lat: 28.6126735,
-          lng: 77.2750732,
-      },
-      creator: "u1",
-  },
-  {
-      id: "p3",
-      title: "Nalanda University",
-      description:
-          "Nalanda University is an international and research-intensive class located in the historical city of Rajgir, in Bihar, India.",
-      imageUrl:
-          "https://images.newindianexpress.com/uploads/user/imagelibrary/2016/11/19/w600X300/BuildingAA.PNG",
-      address: "Rajgir, Bihar, India",
-      location: {
-          lat: 25.1388526,
-          lng: 85.4489793,
-      },
-      creator: "u1",
-  },
-  {
-      id: "p2",
-      title: "Empire State Building",
-      description: "One of the most famous sky scrapers in the world!",
-      imageUrl:
-          "https://banner2.cleanpng.com/20180323/zyw/kisspng-empire-state-building-manhattan-4k-resolution-aspe-skyscraper-5ab5c25a2a99c5.5236467015218612101745.jpg",
-      address: "20 W 34th St, New York, NY 10001, United States",
-      location: {
-          lat: 40.7484405,
-          lng: -73.9878531,
-      },
-      creator: "u2",
-  },
-];
 
 type Event = React.ChangeEvent<HTMLFormElement>;
 
+interface IPlace {
+  title: string,
+  description: string
+}
 interface RouteParams {
   placeId: string;
 }
 
 const UpdatePlace: React.FC = () => {
+  const auth = useContext(AuthContext);
+  const {isLoading, error, sendRequest, clearError } = useHttpClient();
+  const [loadedPlace, setLoadedPlace] = useState <IPlace>();
   const placeId = useParams<RouteParams>().placeId;
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const history = useHistory();
 
   const [formState, inputHandler, setFormData] = useForm(
     {
@@ -94,32 +49,54 @@ const UpdatePlace: React.FC = () => {
     true
   );
 
-  const identifiedPlace = DUMMY_PLACES.find((p: any) => p.id === placeId);
   useEffect(() => {
-    if (identifiedPlace) {
-      setFormData(
-        {
-          title: {
-            value: identifiedPlace?.title,
-            isValid: true,
+    const fetchPlace = async () => {
+      try {
+        const responseData = await sendRequest(`http://localhost:5000/api/places/${placeId}`);
+        setLoadedPlace(responseData.place);
+        setFormData(
+          {
+            title: {
+              value: responseData.place.title,
+              isValid: true,
+            },
+            description: {
+              value: responseData.place.description,
+              isValid: true,
+            },
           },
-          description: {
-            value: identifiedPlace?.description,
-            isValid: true,
-          },
-        },
-        true
-      );
-    }
-    setIsLoading(false);
-  }, [setFormData, identifiedPlace]);
+          true
+        );
+      } catch(err) {}
+    };
+    fetchPlace();
 
-  const placeUpdateSubmitHandler = (e: Event) => {
+  }, [sendRequest, placeId, setFormData]);
+
+  const placeUpdateSubmitHandler = async (e: Event) => {
     e.preventDefault();
-    console.log(formState.inputs);
+    try {
+      await sendRequest(`http://localhost:5000/api/places/${placeId}`, 'PATCH', JSON.stringify({
+        title: formState.inputs.title.value,
+        description: formState.inputs.description.value
+      }),
+        {
+          'Content-Type': 'application/json'
+        }
+      );
+      history.push('/' + auth.userId + '/places');
+    } catch(err) {}
   };
 
-  if (!identifiedPlace) {
+  if (isLoading) {
+    return (
+      <div>
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (!loadedPlace && !error) {
     return (
       <div className="center">
         <Card>
@@ -129,15 +106,10 @@ const UpdatePlace: React.FC = () => {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div>
-        <h2>Loading....</h2>
-      </div>
-    );
-  }
-
   return (
+    <>
+    <ErrorModal error={error} onClear={clearError} />
+    {!isLoading && loadedPlace && (
     <form className="place-form" onSubmit={placeUpdateSubmitHandler}>
       <Input
         id="title"
@@ -147,8 +119,8 @@ const UpdatePlace: React.FC = () => {
         validators={[VALIDATOR_REQUIRE()]}
         errorText="Please enter a valid title."
         onInput={inputHandler}
-        initialValue={formState.inputs.title.value}
-        initialValid={formState.inputs.title.isValid}
+        initialValue={loadedPlace.title}
+        initialValid={true}
       />
       <Input
         id="description"
@@ -157,13 +129,15 @@ const UpdatePlace: React.FC = () => {
         validators={[VALIDATOR_MINLENGTH(5)]}
         errorText="Please enter a valid description (min 5 characters)."
         onInput={inputHandler}
-        initialValue={formState.inputs.description.value}
-        initialValid={formState.inputs.description.isValid}
+            initialValue={loadedPlace.description}
+        initialValid={true}
       />
       <Button type="submit" disabled={!formState.isValid}>
         UPDATE PLACE
       </Button>
     </form>
+    )}
+    </>
   );
 };
 

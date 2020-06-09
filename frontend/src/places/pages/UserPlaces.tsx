@@ -20,13 +20,15 @@ const UserPlaces: React.FC = () => {
       try{
         const responseData = await sendRequest(`http://localhost:5000/api/places/user/${userId}`);
         setLoadedPlace(responseData.places);
-      } catch(err) {
-
-      }
+      } catch(err) {}
     };
-    fetchPlaces();
 
+    fetchPlaces();
   }, [sendRequest, userId]);
+
+  const placeDeleteHandler = (deletedPlaceId: string) => {
+    setLoadedPlace((prevPlaces:any) => prevPlaces.filter((place: any) => place.id !== deletedPlaceId));
+  }
   return (
     <>
     <ErrorModal error={error} onClear={clearError} />
@@ -35,7 +37,7 @@ const UserPlaces: React.FC = () => {
         <LoadingSpinner />
       </div>
     )}
-   {!isLoading && loadedPlace && <PlaceList items={loadedPlace} />}
+      {!isLoading && loadedPlace && <PlaceList items={loadedPlace} onDeletePlace={placeDeleteHandler} />}
   </>
   );
 };
