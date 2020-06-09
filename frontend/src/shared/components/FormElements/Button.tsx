@@ -34,7 +34,6 @@ const Button: React.FC<ButtonProps> = ({ href, size, inverse, danger, children, 
         return (
             <Link
                 to={to}
-                // exact={exact}
                 className={`button button--${size || 'default'} ${inverse &&
                     'button--inverse'} ${danger && 'button--danger'}`}
             >
